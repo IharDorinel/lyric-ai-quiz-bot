@@ -5,11 +5,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Check, RotateCcw, FileText, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 
+// Re-define the Question interface to be used in props
+interface Question {
+  question_text: string;
+  correct_answer: string;
+}
+
 interface QuizResultsProps {
   artist: string;
   song: string;
   lyrics: string;
-  questions: string[];
+  questions: Question[]; // Use the detailed Question interface
   onReset: () => void;
 }
 
@@ -34,9 +40,16 @@ export const QuizResults = ({ artist, song, lyrics, questions, onReset }: QuizRe
   };
 
   const copyAllQuestions = () => {
-    const allQuestions = questions.map((q, i) => `${i + 1}. ${q}`).join('\n\n');
+    const allQuestions = questions.map((q, i) => {
+      return `${i + 1}. ${q.question_text}\nОтвет: ${q.correct_answer}`;
+    }).join('\n\n');
     copyToClipboard(allQuestions, 'all');
   };
+
+  const copySingleQuestion = (question: Question, index: number) => {
+    const textToCopy = `${index + 1}. ${question.question_text}\nОтвет: ${question.correct_answer}`;
+    copyToClipboard(textToCopy, 'question', index);
+  }
 
   return (
     <div className="w-full max-w-4xl space-y-6">
@@ -100,19 +113,23 @@ export const QuizResults = ({ artist, song, lyrics, questions, onReset }: QuizRe
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center gap-3 mb-4">
                         <span className="text-primary font-bold text-lg">
                           Вопрос {index + 1}
                         </span>
                       </div>
-                      <p className="text-foreground leading-relaxed">
-                        {question}
+                      <p className="text-foreground leading-relaxed mb-3">
+                        {question.question_text}
                       </p>
+                      <div className="bg-green-500/10 border-green-500/30 text-green-400 p-3 rounded-md border text-sm">
+                        <p className="font-semibold">Ответ:</p>
+                        <p>{question.correct_answer}</p>
+                      </div>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => copyToClipboard(question, 'question', index)}
+                      onClick={() => copySingleQuestion(question, index)}
                       className="shrink-0"
                     >
                       {copiedType === 'question' && copiedIndex === index ? (

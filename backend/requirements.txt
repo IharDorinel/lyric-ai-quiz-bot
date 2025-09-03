@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+requests
+beautifulsoup4
+python-dotenv
+lxml
+openai
+selenium
+webdriver-manager 
